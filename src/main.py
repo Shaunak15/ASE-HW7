@@ -1,66 +1,43 @@
-# ------------------- MAIN PROGRAM FLOW -------------------
-
-## run_test counts the number of arguments that have been passed and failed and it also,
-## it displays the names tests passed and failed.
-
-import sys, getopt
-# from tests import test_syms,test_nums, test_the,test_copy,test_repCols,test_repCols,test_synonyms,test_prototypes,test_position,test_every
 from tests import *
+import inputs
+import utils
 
-def run_tests():
-    print("Executing tests...\n")
+def main(inputs, help, funcs, saved = {}, fails = 0):
+    for k, v in utils.cli(utils.settings(help)).items():
+        inputs[k] = v
+        saved[k] = v
+    if inputs["help"]:
+        print(help)
+    else:
+        print("Testing...")
+        for what in funcs:
+            if inputs["go"] == "data" or what == inputs["go"]:
+                for k,v in saved.items():
+                    inputs[k] = v
+                if funcs[what]() == False:
+                    fails = fails + 1
+                    print(what, ": failing")
+                else:
+                    print(what, ": passing")
+    exit(fails)
 
-    passCount = 0
-    failCount = 0
-    test_suite = [test_basic, test_bootstrap, test_five,  test_gaussian, test_num, test_pre,  test_sample, test_sk, test_tiles,  test_six,test_ok]
-    
-    for test in test_suite:
-        try:
-            test()
-            passCount = passCount + 1
-        except AssertionError as e:
-            failCount = failCount + 1
-    print("\nPassing: " + str(passCount) + "\nFailing: " + str(failCount))
+egs = {}
+def eg(key, str, func):
+    egs[key] = func
+    inputs.help_string = inputs.help_string + ("  -g  %s\t%s\n" % (key,str))
 
-argumentList = sys.argv[1:]
-b4={}
-ENV = {}
-for k,v in ENV:
-    b4[k]=v
 
-options = "hg"
-long_options = []
-the = {"seed": 937162211, "dump": False, "go": "data", "help": False, "min" : 0.5, "p" : 2, "Sample" : 512, "Far" : 0.95, "rest":4, "bootstrap" : 512,"conf" : 0.05, "cliff" : .4, "cohen" : .35,"Fmt" : "%6.2f","width" : 40}
-    
-def help():
-    help_string = """cluster.lua : an example csv reader script
-    (c)2022, Tim Menzies <timm@ieee.org>, BSD-2 
-    USAGE: cluster.lua  [OPTIONS] [-g ACTION]
-    OPTIONS:
-    -d  --dump    on crash, dump stack   = false
-    -f  --file    name of file           = ../etc/data/auto93.csv
-    -F  --Far     distance to "faraway"  = .95
-    -g  --go      start-up action        = data
-    -h  --help    show help              = false
-    -m  --min     stop clusters at N^min = .5
-    -p  --p       distance coefficient   = 2
-    -s  --seed    random number seed     = 937162211
-    -S  --Sample  sampling data size     = 512
-    ]]"""
+eg("ok","check test_ok",test_ok)
+eg("num","check test_num",test_num)
+eg("sample","show test_sample", test_sample)
+eg("gaussian","check test_gaussian",test_gaussian)
+eg("bootstrap","check test_bootstrap",test_bootstrap)
+eg("basic","check test_basic", test_basic)
+eg("pre","check test_pre",test_pre)
+eg("five","check test_five", test_five)
+eg("six","check test_six", test_six)
+eg("tiles","check test_tiles", test_tiles)
+eg("sk","check test_sk", test_sk)
 
-def main():
-    try:    
-        # Parsing argument
-        arguments, values = getopt.getopt(argumentList, options, long_options)
-        # checking each argument
-        for currentArgument, currentValue in arguments:
-             if currentArgument in ('-h', ''):
-                 help()
-             if currentArgument in ("-g", ''):
-                run_tests()
-                
-    except getopt.error as err:
-        print (str(err))
-
-if __name__ == "__main__":
-    main()
+print(egs)
+main(inputs.the, inputs.help_string, egs)

@@ -1,7 +1,43 @@
 import math
 import random
-import main
 from num import Num
+import sys
+import re
+import inputs
+
+def cli(options):
+    for k, v in options.items():
+        v = str(v)
+        for n, x in enumerate(sys.argv):
+            if x== "-" + k[0] or x == "--" + k:
+                v = (sys.argv[n + 1] if n + 1 < len(
+                    sys.argv) else False) or v == "False" and "true" or v == "True" and "false"
+            options[k] = coerce(v)
+    return options
+
+def coerce(s):
+    try:
+        return int(s)
+    except:
+        try:
+            return float(s)
+        except:
+            pass
+
+    if s == "true" or s == "True":
+        return True
+    elif s == "false" or s == "False":
+        return False
+    else:
+        return s
+
+def settings(s):
+    t={}
+    res = re.findall("\n[\s]+[-][\S]+[\s]+[-][-]([\S]+)[^\n]+= ([\S]+)", s)
+    for k,v in res:
+            t[k] = coerce(v)
+    return t
+
 
 def erf(x):
     a1 =  0.254829592
@@ -41,7 +77,7 @@ def cliffsDelta(ns1, ns2):
             n += 1
             if x > y: gt += 1
             if x < y: lt += 1
-    return abs(lt - gt) / n <= main.the['cliff']
+    return abs(lt - gt) / n <= inputs.the['cliff']
 
 def delta(i, other):
     e, y, z = 1E-32, i, other
@@ -60,10 +96,10 @@ def bootstrap(y0, z0):
     for z1 in z0: zhat.append(z1 - zmu + xmu)
     tobs = delta(y, z)
     n = 0
-    for i in range(main.the['bootstrap']):
+    for i in range(inputs.the['bootstrap']):
         if (delta(Num(samples(yhat)), Num(samples(zhat))) > tobs):
             n += 1
-    return n / main.the['bootstrap'] >= main.the['conf']
+    return n / inputs.the['bootstrap'] >= inputs.the['conf']
 
 def RX(t, s = None):
     t.sort()
@@ -115,7 +151,7 @@ def scottKnot(rxs):
                 rxs[i]["rank"] = rank
         return rank
     rxs.sort(key=lambda x: mid(x))
-    cohen = div(merges(0, len(rxs) - 1)) * main.the['cohen']
+    cohen = div(merges(0, len(rxs) - 1)) * inputs.the['cohen']
     recurse(0, len(rxs) - 1, 1)
     return rxs
 
@@ -132,9 +168,9 @@ def tiles(rxs):
         def at(x): 
             return t[of(int(len(t) * x), len(t) - 1)]
         def pos(x): 
-            return floor(of(main.the['width'] * (x - lo) / (hi - lo + 1E-32) // 1,main.the['width']))
+            return floor(of(inputs.the['width'] * (x - lo) / (hi - lo + 1E-32) // 1,inputs.the['width']))
         
-        for _ in range(main.the['width']): 
+        for _ in range(inputs.the['width']): 
             u.append(" ")
         a, b, c, d, e= at(.1), at(.3), at(.5), at(.7), at(.9)
         A, B, C, D, E= pos(a), pos(b), pos(c), pos(d), pos(e)
@@ -143,7 +179,7 @@ def tiles(rxs):
         for i in range(D, E):
             u[i] = "-"
             
-        u[main.the['width'] // 2] = "|"
+        u[inputs.the['width'] // 2] = "|"
         u[C] = "*"
         rx["show"] = "".join(u) + " { %6.2f" % a  + "}"
         for x in (b, c, d, e):
