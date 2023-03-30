@@ -1,7 +1,5 @@
 # ASE-HW7
 
-# ASEHW5
-
 Automated Software Engineering - HW7
 
 [![DOI](https://zenodo.org/badge/596268879.svg)](https://zenodo.org/badge/latestdoi/596268879)
