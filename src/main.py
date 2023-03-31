@@ -30,6 +30,7 @@ def main(inputs, help, functions, saved={}):
 
 
 test_functions = {}
+
 def add_test_function(key, description, function):
     """
     A helper function to add test functions to the dictionary.

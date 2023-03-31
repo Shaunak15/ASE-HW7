@@ -155,34 +155,52 @@ def scottKnot(rxs):
     recurse(0, len(rxs) - 1, 1)
     return rxs
 
-def tiles(rxs):
-    huge, min_f, max_f, floor = float("inf"), min, max, math.floor
-    lo, hi = huge, -huge
-    for rx in rxs:
-        lo = min_f(lo, rx["has"][0])
-        hi = max_f(hi, rx["has"][-1])
-    for rx in rxs:
-        t, u = rx["has"], []
+def tiles(rx_list):
+    inf = float("inf")
+    min_f = min
+    max_f = max
+    floor = math.floor
+    width = inputs.the['width']
+    for rx in rx_list:
+        lo = min_f(rx["has"])
+        hi = max_f(rx["has"])
+        
+    for rx in rx_list:
+        t = rx["has"]
+        u = [" "] * width
+        
         def of(x, most): 
             return max(1, min_f(most, x))
+        
         def at(x): 
             return t[of(int(len(t) * x), len(t) - 1)]
-        def pos(x): 
-            return floor(of(inputs.the['width'] * (x - lo) / (hi - lo + 1E-32) // 1,inputs.the['width']))
         
-        for _ in range(inputs.the['width']): 
-            u.append(" ")
-        a, b, c, d, e= at(.1), at(.3), at(.5), at(.7), at(.9)
-        A, B, C, D, E= pos(a), pos(b), pos(c), pos(d), pos(e)
+        def pos(x): 
+            return floor(of(width * (x - lo) / (hi - lo + 1E-32) // 1, width))
+        
+        a = at(.1)
+        b = at(.3)
+        c = at(.5)
+        d = at(.7)
+        e = at(.9)
+        
+        A = pos(a)
+        B = pos(b)
+        C = pos(c)
+        D = pos(d)
+        E = pos(e)
+        
         for i in range(A, B):
             u[i] = "-"
         for i in range(D, E):
             u[i] = "-"
-            
-        u[inputs.the['width'] // 2] = "|"
+        
+        u[width // 2] = "|"
         u[C] = "*"
         rx["show"] = "".join(u) + " { %6.2f" % a  + "}"
+        
         for x in (b, c, d, e):
-            rx["show"] += ", %6.2f" % a
+            rx["show"] += ", %6.2f" % x
+            
         rx["show"] += " }"
-    return rxs
+    return rx_list
